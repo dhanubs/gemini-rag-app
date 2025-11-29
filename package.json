@@ -13,6 +13,7 @@
     "@ai-sdk/react": "^2.0.100",
     "@clerk/nextjs": "^6.35.4",
     "@google/generative-ai": "^0.24.1",
+    "@tailwindcss/typography": "^0.5.19",
     "ai": "^5.0.100",
     "better-sqlite3": "^12.4.6",
     "busboy": "^1.6.0",
@@ -23,6 +24,8 @@
     "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

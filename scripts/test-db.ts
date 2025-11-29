@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
-import { documents } from '../lib/schema.ts';
+import { documents } from '../lib/schema';
 
 try {
     console.log('Opening database...');

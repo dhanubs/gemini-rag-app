@@ -2,7 +2,8 @@ import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { documents } from '@/lib/schema';
+import { documents, messages as messagesTable, chats } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,20 +14,42 @@ export async function POST(req: Request) {
             return new Response('Unauthorized', { status: 401 });
         }
 
-        const { messages } = await req.json();
+        const { messages, chatId } = await req.json();
 
         if (!messages || messages.length === 0) {
             return new Response('Missing messages', { status: 400 });
         }
 
+        // Ensure chatId is provided or handle new chat creation on client side first
+        // For this implementation, we assume client provides a valid chatId or we create one if missing?
+        // Better to enforce chatId.
+        let activeChatId = chatId;
+        if (!activeChatId) {
+            // Create a new chat if no ID provided (fallback)
+            const newChat = await db.insert(chats).values({
+                id: Date.now().toString(),
+                userId,
+                title: messages[0].content.substring(0, 50) + '...',
+            }).returning();
+            activeChatId = newChat[0].id;
+        }
+
+        // Save the latest user message
+        const lastUserMessage = messages[messages.length - 1];
+        if (lastUserMessage.role === 'user') {
+            await db.insert(messagesTable).values({
+                id: Date.now().toString(),
+                chatId: activeChatId,
+                role: 'user',
+                content: lastUserMessage.content,
+            });
+        }
+
         console.log('[chat] received', messages?.length ?? 0, 'messages from', userId);
-        console.log('[chat] API Key present:', !!process.env.GOOGLE_GENERATIVE_AI_API_KEY);
 
         // Get all documents with Gemini URIs
         const docs = await db.select().from(documents);
         const docsWithUri = docs.filter((doc) => doc.geminiUri);
-        
-        console.log('[chat] found', docsWithUri.length, 'documents with Gemini URIs');
 
         // Build a comprehensive system message with file references
         const fileReferences = docsWithUri
@@ -43,42 +66,34 @@ Important: These files are available to you through the Gemini File API. When an
 
 If the answer cannot be found in the uploaded documents, you may use your general knowledge, but always indicate when you're doing so.`;
 
-        console.log('[chat] streaming response with', docsWithUri.length, 'file references');
-
         try {
-            // Use streamText with Google AI SDK
-            // Using gemini-2.5-flash (stable, latest flash model)
             const result = streamText({
                 model: google('gemini-2.5-flash'),
                 messages,
                 system: systemMessage,
+                onFinish: async (completion) => {
+                    // Save assistant response
+                    await db.insert(messagesTable).values({
+                        id: Date.now().toString(),
+                        chatId: activeChatId,
+                        role: 'assistant',
+                        content: completion.text,
+                    });
+                },
             });
 
-            console.log('[chat] streamText initiated, creating response');
-            
-            // Return the streaming text response (compatible with useChat)
-            const response = result.toTextStreamResponse();
-            console.log('[chat] response created, streaming to client');
-            
-            return response;
+            // Return the streaming text response with the chatId header so client knows where to save
+            return result.toTextStreamResponse({
+                headers: {
+                    'x-chat-id': activeChatId
+                }
+            });
         } catch (streamError) {
             console.error('[chat] streamText error:', streamError);
             throw streamError;
         }
     } catch (error) {
         console.error('Chat error:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const errorStack = error instanceof Error ? error.stack : undefined;
-        
-        console.error('Error details:', { message: errorMessage, stack: errorStack });
-        
-        return new Response(JSON.stringify({ 
-            error: 'Internal Server Error', 
-            details: errorMessage,
-            stack: errorStack
-        }), { 
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     }
 }
