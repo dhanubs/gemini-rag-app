@@ -57,3 +57,4 @@ local.db-wal
 upload-debug.log
 upload-error.log
 test-*.txt
+local.db
