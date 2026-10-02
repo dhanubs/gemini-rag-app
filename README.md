@@ -8,9 +8,11 @@ your content, with citations, powered by Google Gemini.
 
 ## Quick start
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+.venv\Scripts\Activate.ps1      # Windows PowerShell
+# source .venv/bin/activate     # macOS / Linux
 pip install -e ".[dev]"
-cp .env.example .env          # add your GEMINI_API_KEY
+copy .env.example .env  # (cp on macOS/Linux)          # add your GEMINI_API_KEY
 uvicorn app.main:app --reload # http://localhost:8000/docs
 pytest -q
 ```
@@ -30,6 +32,6 @@ pytest -q
 ## Demo kit
 - [`demo/RUN_OF_SHOW.md`](demo/RUN_OF_SHOW.md): 18-minute VS Code demo — setup, segments, fallbacks
 - [`demo/PROMPTS.md`](demo/PROMPTS.md): paste-ready prompts for each act
-- [`demo/issues/`](demo/issues): seed issues, created with `demo/create-issues.sh`
-- `demo/checkpoint.sh`: save and restore per-act snapshots during the live demo
-- `demo/plant-vuln.sh`: creates a deliberately vulnerable branch for the review/Autofix act
+- [`demo/issues/`](demo/issues): seed issues, created with `python demo/create_issues.py`
+- `demo/checkpoint.py`: save and restore per-segment snapshots (`python demo/checkpoint.py save act-0`)
+- `demo/plant_vuln.py`: creates a deliberately vulnerable local branch for the guardrails segment

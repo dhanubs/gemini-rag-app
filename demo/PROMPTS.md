@@ -5,7 +5,9 @@ Keep this file open in a side tab. Paste; don't type.
 ---
 
 ## §1 · Completions + Next Edit Suggestions (2 min)
-Create `app/services/chunking.py` and type only this, then accept the ghost text:
+In the VS Code **Explorer**, right-click the `app/services` folder → **New File** →
+`chunking.py`. In the empty file type only the two lines below (press Enter after the docstring),
+then wait for the grey ghost text and press **Tab** to accept it:
 ```python
 def chunk_text(text: str, size: int = 800, overlap: int = 100) -> list[str]:
     """Split text into overlapping chunks of roughly `size` characters."""
@@ -13,7 +15,8 @@ def chunk_text(text: str, size: int = 800, overlap: int = 100) -> list[str]:
 **NES moment:** rename the parameter `size` → `chunk_size` in the signature, then press **Tab**
 to accept each suggested follow-up edit in the body.
 
-(Delete the file afterwards, or leave it — the agent in §3 will reuse or replace it.)
+(Leave the file — the agent in §3 can reuse it for ingestion. `checkpoint.py restore` clears it
+for the next rehearsal.)
 
 ---
 
@@ -47,8 +50,8 @@ Edit aloud, e.g.:
 ---
 
 ## §4 · Payoff (2 min)
-```bash
-demo/checkpoint.sh restore act-4
+```powershell
+python demo/checkpoint.py restore act-4
 uvicorn app.main:app --reload
 ```
 Browser → http://localhost:8000/docs → `POST /documents` → upload a PDF from `data-samples/`
@@ -61,7 +64,7 @@ Point at `citations` — every claim traces to a chunk.
 ---
 
 ## §5 · Guardrails (2 min)
-```bash
+```powershell
 git checkout demo/vulnerable-upload
 ```
 Open `app/api/raw_files.py`, then in chat:

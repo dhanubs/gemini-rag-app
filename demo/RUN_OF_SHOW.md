@@ -17,8 +17,16 @@ context and reviewing output*. Everything happens in VS Code; paste prompts from
 
 ## Setup (day before)
 
-1. Merge PR #1; clone `main`; `python -m venv .venv`, activate, `pip install -e ".[dev]"`, `pytest -q`.
-2. `cp .env.example .env` and set `GEMINI_API_KEY`. Put 1–2 PDFs in `data-samples/`
+1. Clone `main`, then in the VS Code terminal (PowerShell on Windows):
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1          # if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+   pip install -e ".[dev]"
+   pytest -q                           # expect: 1 passed
+   copy .env.example .env              # then set GEMINI_API_KEY in .env
+   ```
+   All demo scripts are Python (`python demo/...py`), so they run the same on Windows, macOS and Linux.
+2. Your `.env` holds `GEMINI_API_KEY`. Put 1–2 PDFs in `data-samples/`
    (e.g. a company annual report).
 3. VS Code: GitHub Copilot + Copilot Chat + Python extensions, signed in; select the `.venv`
    interpreter; trust the workspace.
@@ -29,17 +37,17 @@ context and reviewing output*. Everything happens in VS Code; paste prompts from
 5. **Build the fallback (most important).** In a rehearsal, run Act 3 for real, then keep going
    in Agent mode with Issue 02 (`demo/issues/02-ask-with-citations.md`) until `/ask` works
    against real Gemini. Then:
-   ```bash
-   git checkout main && demo/checkpoint.sh save act-0   # clean starting point
+   ```powershell
+   git checkout main; python demo/checkpoint.py save act-0   # clean starting point
    # ...after the full rehearsal build is green and working:
-   demo/checkpoint.sh save act-4                        # ingestion + /ask, real answers
-   demo/plant-vuln.sh                                   # branch demo/vulnerable-upload on top of act-4
+   python demo/checkpoint.py save act-4                        # ingestion + /ask, real answers
+   python demo/plant_vuln.py                                  # branch demo/vulnerable-upload on top of act-4
    ```
-6. Rehearse the whole 18 minutes twice more, starting each time from `demo/checkpoint.sh restore act-0`.
+6. Rehearse the whole 18 minutes twice more, starting each time from `python demo/checkpoint.py restore act-0`.
 
 ## T-5 minutes
 
-- `demo/checkpoint.sh restore act-0`; close all editor tabs; open `app/config.py` and `demo/PROMPTS.md`.
+- `python demo/checkpoint.py restore act-0`; close all editor tabs; open `app/config.py` and `demo/PROMPTS.md`.
 - New chat session. Notifications off. Font size is already large via `.vscode/settings.json`.
 - Terminal open at repo root with the venv active.
 
@@ -69,10 +77,10 @@ Prompts §3.
   files appearing, the **terminal approval** prompts, a failing test it then fixes itself.
 - When green: open the diff view, show **Keep / Undo** per file.
 - **Hard stop at minute 13.** If it's not green: "this is exactly why we have checkpoints" →
-  `demo/checkpoint.sh restore act-4`.
+  `python demo/checkpoint.py restore act-4`.
 
 ### 4 · Payoff (2 min)
-`demo/checkpoint.sh restore act-4` (the rehearsal build with `/ask` finished — say so honestly:
+`python demo/checkpoint.py restore act-4` (the rehearsal build with `/ask` finished — say so honestly:
 "I asked it to do the Q&A half yesterday the same way"). Prompts §4: run the app, upload the
 PDF in Swagger, ask a question, show the citations.
 
@@ -92,7 +100,7 @@ PDF in Swagger, ask a question, show the citations.
 ## If something breaks
 | Problem | Do this |
 |---|---|
-| Agent goes off the rails | Narrate it ("this is why we review"), `demo/checkpoint.sh restore act-4` |
+| Agent goes off the rails | Narrate it ("this is why we review"), `python demo/checkpoint.py restore act-4` |
 | Agent slow / rate-limited | Switch model in the picker, or skip to the restore |
 | No network | Present from `act-4` with pre-taken screenshots of the chat |
 | Gemini API error in §4 | Show the passing test suite instead — the fakes prove the flow |

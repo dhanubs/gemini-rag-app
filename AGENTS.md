@@ -6,9 +6,11 @@ are the shared contract.
 
 ## Setup
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+.venv\Scripts\Activate.ps1      # Windows PowerShell
+# source .venv/bin/activate     # macOS / Linux
 pip install -e ".[dev]"
-cp .env.example .env   # only needed to run against real Gemini
+copy .env.example .env  # (cp on macOS/Linux)   # only needed to run against real Gemini
 ```
 
 ## Verify your work
