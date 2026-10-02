@@ -65,11 +65,11 @@ main ──► [act-0: clean start] ──rehearsal build──► [act-4: full 
    interpreter; trust the workspace.
 4. Sanity checks in Chat:
    - Ask *"What are this repo's architecture rules?"* → **References** lists `copilot-instructions.md`.
-   - Type `/` → `new-endpoint`, `write-tests`, `security-review` appear.
+   - Type `/` → `build-from-issue`, `new-endpoint`, `write-tests`, `security-review` appear.
    - Agent/mode picker shows `planner`.
-5. **Build the fallback (most important).** In a rehearsal, run Act 3 for real, then keep going
-   in Agent mode with Issue 02 (`demo/issues/02-ask-with-citations.md`) until `/ask` works
-   against real Gemini. Then:
+5. **Build the fallback (most important).** Follow *"Rehearsal only"* in `demo/PROMPTS.md`
+   (`/build-from-issue` for issues 01 then 02, add the real Gemini adapter, test in the browser).
+   The checkpoint commands are:
    ```powershell
    git checkout main; python demo/checkpoint.py save act-0   # clean starting point
    # ...after the full rehearsal build is green and working:

@@ -22,7 +22,7 @@ pytest -q
 |---|---|---|
 | `.github/copilot-instructions.md` | Copilot | Repo-wide context: stack, architecture, rules |
 | `.github/instructions/*.instructions.md` | Copilot | Path-scoped rules (`applyTo` globs) |
-| `.github/prompts/*.prompt.md` | Copilot Chat | Reusable `/commands` |
+| `.github/prompts/*.prompt.md` | Copilot Chat | Reusable `/commands`: `/build-from-issue`, `/new-endpoint`, `/write-tests`, `/security-review` |
 | `.github/agents/planner.agent.md` | Copilot Chat | Read-only architect persona |
 | `.github/workflows/copilot-setup-steps.yml` | Copilot coding agent | Pre-installs deps so the agent can run tests |
 | `.vscode/mcp.json` | VS Code agent mode | GitHub + Playwright MCP servers |
