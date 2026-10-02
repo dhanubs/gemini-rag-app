@@ -15,6 +15,39 @@ context and reviewing output*. Everything happens in VS Code; paste prompts from
 
 ---
 
+## What's built, and what isn't
+
+**Already in the repo (on `main` today):**
+| Area | What exists |
+|---|---|
+| App | `app/main.py` with only `GET /health`; `app/config.py` settings; an **empty** `app/services/` folder |
+| Tests | `tests/test_health.py` (1 test) |
+| Copilot context | `.github/copilot-instructions.md`, `.github/instructions/`, `.github/prompts/`, `.github/agents/planner.agent.md`, `AGENTS.md` |
+| Demo kit | `demo/*.py` scripts, `demo/issues/*.md` specs, this file, `PROMPTS.md` |
+
+**Not built yet: no RAG code exists.** Chunking, the Gemini adapter, the vector store,
+`POST /documents` and `POST /ask` are only *specified* (in `demo/issues/01` and `02`).
+**Copilot builds them**, in two passes:
+
+| When | Who builds what | Saved as |
+|---|---|---|
+| **Rehearsal (you, beforehand)** | Copilot Agent mode builds *everything*: issue 01 (ingestion) **and** issue 02 (`/ask` with citations). You get it working against real Gemini. | checkpoint `act-4` |
+| | `python demo/plant_vuln.py` adds the insecure endpoint on top | branch `demo/vulnerable-upload` |
+| **Live §1** | You + ghost text write `chunk_text()` | (thrown away) |
+| **Live §3** | Agent mode rebuilds **issue 01 only** (ingestion) from a clean start | (thrown away) |
+| **Live §4** | Nothing is built: you switch to `act-4` from rehearsal and run it | — |
+| **Live §5** | Nothing is built: you switch to `demo/vulnerable-upload`, Copilot finds and fixes the bug | — |
+
+So the audience watches Copilot build half the feature live (§3), then sees the finished
+version you built the same way in rehearsal (§4). Say that openly; it's part of the story.
+
+```
+main ──► [act-0: clean start] ──rehearsal build──► [act-4: full RAG app] ──► [demo/vulnerable-upload]
+              ▲ live §1–§3 start here                    ▲ live §4               ▲ live §5
+```
+
+---
+
 ## Setup (day before)
 
 1. Clone `main`, then in the VS Code terminal (PowerShell on Windows):
