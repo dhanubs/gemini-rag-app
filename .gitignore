@@ -46,3 +46,6 @@ __pycache__/
 # rag app data
 data/
 .chroma/
+uploads
+*.log
+*.db
