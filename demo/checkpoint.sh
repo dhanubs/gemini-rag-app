@@ -9,7 +9,7 @@ case "$cmd" in
   save)
     [[ -n "$name" ]] || { echo "usage: $0 save <name>"; exit 1; }
     git add -A
-    git commit -qm "checkpoint: $name" --allow-empty
+    git diff --cached --quiet || git commit -qm "checkpoint: $name"
     git branch -f "demo/$name"
     echo "saved demo/$name @ $(git rev-parse --short HEAD)" ;;
   restore)

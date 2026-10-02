@@ -1,80 +1,77 @@
-# Paste-ready demo prompts
+# Paste-ready prompts (18-minute VS Code demo)
 
-Paste these instead of typing them live. Keep this file open in a side tab.
+Keep this file open in a side tab. Paste; don't type.
 
 ---
 
-## Act 1 — Completions & Next Edit Suggestions
-In `app/main.py`, type only this and let the ghost text finish it:
+## §1 · Completions + Next Edit Suggestions (2 min)
+Create `app/services/chunking.py` and type only this, then accept the ghost text:
 ```python
-@app.get("/version")
-def version() -> dict[str, str]:
-    """Return the application name and version."""
+def chunk_text(text: str, size: int = 800, overlap: int = 100) -> list[str]:
+    """Split text into overlapping chunks of roughly `size` characters."""
 ```
-**NES moment:** in `app/config.py`, rename `data_dir` → `storage_dir`, then press Tab through the
-suggested follow-up edits in other files.
+**NES moment:** rename the parameter `size` → `chunk_size` in the signature, then press **Tab**
+to accept each suggested follow-up edit in the body.
+
+(Delete the file afterwards, or leave it — the agent in §3 will reuse or replace it.)
 
 ---
 
-## Act 2 — Context engineering
-**Before** (temporarily rename `.github/copilot-instructions.md` to `.bak`), Ask mode:
-> How should I add a Gemini call to this project?
+## §2 · Context engineering (3 min)
+**Before:** Settings → search *"instruction files"* → untick
+*"Chat › Code Generation: Use Instruction Files"* (also untick the AGENTS.md option if present).
+In **Ask** mode:
+> How should I add a Gemini call to this project? Show me the code.
 
-**After** (restore the file), ask the same question again. Point out: the right SDK, the
-adapter layer, model name from config, a test fake.
+**After:** tick the setting(s) again, open a **new chat**, ask the same question.
+Expected difference: `google-genai` SDK, an adapter behind a Protocol, model name from
+`get_settings()`, and a fake for tests.
 
-Context variables:
-> Using #file:app/config.py and #codebase, what's missing for a production-ready RAG service?
-
-> #fetch https://ai.google.dev/gemini-api/docs/embeddings — summarise the embedding API options relevant to us.
-
----
-
-## Act 3 — Agent mode builds the feature
-**Step 1, plan** — switch to the **planner** agent (or Plan mode):
-> Plan the implementation of document ingestion and question answering with citations,
-> per demo/issues/01-document-ingestion.md and demo/issues/02-ask-with-citations.md.
-
-Edit the plan visibly (e.g. "use a NumPy-based store, no Chroma"), then hand off.
-
-**Step 2, build** — Agent mode:
-> Implement the plan. Write the tests first, then the code. Use a fake Gemini adapter in tests.
-> Run ruff and pytest and keep going until both pass.
-
-**Step 3, reusable workflow:**
-> /new-endpoint endpoint=GET /documents/{id}/chunks purpose=return the chunks stored for a document
-
-> `demo/checkpoint.sh save act-3`
+Optional 20-second extra:
+> Using #file:app/config.py, what settings will a RAG service still need?
 
 ---
 
-## Act 4 — MCP
-> Using the GitHub MCP server, list the open issues in this repo that relate to ingestion
-> and summarise what's left to do.
+## §3 · Agent mode builds ingestion (7 min)
+**Plan** — pick the **planner** agent:
+> Plan the implementation of demo/issues/01-document-ingestion.md. Keep it small enough
+> to finish in one sitting.
 
-(optional, once there's a UI) > Use Playwright to open http://localhost:8000/docs and check
-that the /ask endpoint is listed.
+Edit aloud, e.g.:
+> Use a simple NumPy cosine-similarity store persisted to DATA_DIR — no Chroma. Go.
 
----
-
-## Act 5 — Copilot coding agent
-- On GitHub, open the "List and delete documents" issue → **Assign to Copilot**.
-- Switch to the PR started before the demo (logging issue) → show the session log, commits, CI.
-- Comment on that PR:
-> @copilot Please also add a `request_id` (UUID) to each log line and return it in an
-> `X-Request-ID` response header.
+**Build** — switch to **Agent** mode:
+> Implement that plan. Write the tests first, then the code. Use a fake Gemini adapter in
+> the tests. Run `ruff check .` and `pytest -q` and keep going until both pass.
 
 ---
 
-## Act 6 — Quality gates
-- Open the PR from `demo/vulnerable-upload` → request a **Copilot review**.
-- Show the CodeQL path-injection alert → **Generate fix** (Copilot Autofix).
-- In the editor: `/security-review` on `app/api/raw_files.py`.
+## §4 · Payoff (2 min)
+```bash
+demo/checkpoint.sh restore act-4
+uvicorn app.main:app --reload
+```
+Browser → http://localhost:8000/docs → `POST /documents` → upload a PDF from `data-samples/`
+→ `POST /ask`:
+```json
+{ "question": "What were the main risks highlighted this year?", "top_k": 5 }
+```
+Point at `citations` — every claim traces to a chunk.
 
 ---
 
-## Back-pocket "wow"s (if something falls flat)
-> Introduce a subtle off-by-one in the chunk overlap, run the tests, and then fix whatever fails.
-(Shows the agent's self-correction loop.)
+## §5 · Guardrails (2 min)
+```bash
+git checkout demo/vulnerable-upload
+```
+Open `app/api/raw_files.py`, then in chat:
+> /security-review
 
+Then in **Agent** mode:
+> Fix the path traversal you found using server-generated IDs, add a regression test,
+> and run the tests.
+
+---
+
+## Back-pocket (only if you're ahead of time)
 > Draw a Mermaid sequence diagram of the /ask request flow from the code as it is now.

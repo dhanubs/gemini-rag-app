@@ -28,14 +28,12 @@ async def save_raw(filename: str, file: UploadFile) -> dict[str, str]:
 def read_raw(filename: str) -> FileResponse:
     return FileResponse(os.path.join(UPLOAD_DIR, filename))
 PY
-python - <<'PY'
-import re, pathlib
-p = pathlib.Path("app/main.py")
-s = p.read_text()
-s = s.replace("from fastapi import FastAPI\n",
-              "from fastapi import FastAPI\n\nfrom app.api.raw_files import router as raw_router\n")
-s += "\n\napp.include_router(raw_router)\n"
-p.write_text(s)
+cat >> app/main.py <<'PY'
+
+
+from app.api.raw_files import router as raw_router  # noqa: E402
+
+app.include_router(raw_router)
 PY
 git add -A && git commit -qm "Add raw file upload/download endpoints"
 echo "Branch demo/vulnerable-upload ready. Push it and open a PR against main."

@@ -28,7 +28,7 @@ pytest -q
 | `CLAUDE.md` | Claude Code | Imports `AGENTS.md` + Copilot instructions |
 
 ## Demo kit
-- [`demo/RUN_OF_SHOW.md`](demo/RUN_OF_SHOW.md): timings, checklist, fallback plan
+- [`demo/RUN_OF_SHOW.md`](demo/RUN_OF_SHOW.md): 18-minute VS Code demo — setup, segments, fallbacks
 - [`demo/PROMPTS.md`](demo/PROMPTS.md): paste-ready prompts for each act
 - [`demo/issues/`](demo/issues): seed issues, created with `demo/create-issues.sh`
 - `demo/checkpoint.sh`: save and restore per-act snapshots during the live demo
