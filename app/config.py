@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     generation_model: str = "gemini-2.5-flash"
     embedding_model: str = "gemini-embedding-001"
     data_dir: str = "./data"
+    chunk_size: int = 800
+    chunk_overlap: int = 100
+    similarity_threshold: float = 0.35
 
 
 @lru_cache
