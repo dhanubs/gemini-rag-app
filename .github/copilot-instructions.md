@@ -5,6 +5,9 @@ A retrieval-augmented generation (RAG) service. Users upload documents (PDF, Mar
 the service chunks them, embeds the chunks with Gemini, stores vectors locally, and answers
 questions with **grounded answers and citations** back to the source chunks.
 
+We deliberately own the retrieval pipeline (chunking, embeddings, vector store, ranking).
+Do **not** use Gemini's managed File Search API — use Gemini only for embeddings and generation.
+
 ## Stack
 - Python 3.11+, FastAPI, Pydantic v2, `pydantic-settings` for config
 - Gemini via the official `google-genai` SDK (`from google import genai`) — not the legacy
